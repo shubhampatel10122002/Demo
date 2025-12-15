@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 
-const SearchResultsPage = () => {
+const SearchResultsPage = ({ onNavigate }) => {
   const [selectedSort, setSelectedSort] = useState('Best Match');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showSourceModal, setShowSourceModal] = useState(false);
@@ -632,7 +632,10 @@ const SearchResultsPage = () => {
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 flex justify-around items-center max-w-md mx-auto">
-        <button className="flex flex-col items-center gap-1 text-gray-400">
+        <button
+          onClick={() => onNavigate && onNavigate('home')}
+          className="flex flex-col items-center gap-1 text-gray-400"
+        >
           <span className="text-xl">🏠</span>
           <span className="text-xs">Home</span>
         </button>
