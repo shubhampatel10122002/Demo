@@ -159,7 +159,7 @@ const SearchResultsPage = ({ onNavigate }) => {
     {
       id: 2,
       type: 'ai',
-      text: 'Found 124 highly-rated shoes for all-day comfort. Prioritized cushioning & support.',
+      text: 'Found 124 highly-rated shoes for all-day comfort. Prioritized comfort & weight.',
       feedSnapshot: 'feed-1'
     },
     {
