@@ -812,7 +812,7 @@ const SearchResultsPage = ({ onNavigate }) => {
 
       {/* Chat Window - Fixed at Bottom above Nav */}
       <div className={`fixed bottom-16 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 shadow-xl transition-all duration-300 ease-in-out ${
-        chatExpanded ? 'h-80' : 'h-14'
+        chatExpanded ? 'h-90' : 'h-14'
       }`}>
 
         {/* Collapsed State */}
