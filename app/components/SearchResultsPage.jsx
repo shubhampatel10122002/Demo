@@ -24,8 +24,8 @@ const SearchResultsPage = ({ onNavigate }) => {
     comfort: { active: true, label: 'Comfort' },
     weight: { active: true, label: 'Weight' },
     durability: { active: false, label: 'Durability' },
-    style: { active: false, label: 'Style' },
-    traction: { active: false, label: 'Traction' },
+    // style: { active: false, label: 'Style' },
+    traction: { active: false, label: 'Grip' },
     breathability: { active: false, label: 'Breathability' }
   });
 
