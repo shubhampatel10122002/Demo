@@ -2,12 +2,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 
-const SearchResultsPage = ({ onNavigate }) => {
+const SearchResultsPage = () => {
   const [selectedSort, setSelectedSort] = useState('Best Match');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showSourceModal, setShowSourceModal] = useState(false);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [chatExpanded, setChatExpanded] = useState(false);
+  const [activeSourceDetail, setActiveSourceDetail] = useState(null);
   const messagesEndRef = useRef(null);
 
   const [sources, setSources] = useState({
@@ -17,15 +18,15 @@ const SearchResultsPage = ({ onNavigate }) => {
     blogs: true
   });
 
-  // Priority filters - simple active/inactive
+  // Priority filters - updated order with Comfort and Weight active by default
   const [priorities, setPriorities] = useState({
-    comfort: { active: true },
-    cushioning: { active: true },
-    durability: { active: false },
-    stability: { active: false },
-    breathability: { active: false },
-    weight: { active: false },
-    score: { active: true }
+    score: { active: true, label: 'Score 8+' },
+    comfort: { active: true, label: 'Comfort' },
+    weight: { active: true, label: 'Weight' },
+    durability: { active: false, label: 'Durability' },
+    style: { active: false, label: 'Style' },
+    traction: { active: false, label: 'Traction' },
+    breathability: { active: false, label: 'Breathability' }
   });
 
   // Classical filters
@@ -61,6 +62,92 @@ const SearchResultsPage = ({ onNavigate }) => {
     }
   });
 
+  // Detailed source data for Nike Air Zoom Pegasus 40 (product id: 1)
+  const sourceDetails = {
+    1: {
+      reddit: {
+        score: 9.4,
+        mentions: 847,
+        summary: "Reddit users love the responsive cushioning and versatility, but some warn about the narrow toe box for wider feet.",
+        categories: {
+          comfort: 9.6,
+          weight: 8.5,
+          durability: 8.9,
+          style: 9.1,
+          traction: 8.7,
+          breathability: 9.0
+        },
+        context: ["r/RunningShoeGeeks", "r/Sneakers", "r/Running"],
+        quotes: [
+          { text: "Best all-day shoe I've owned. Wore these for a 12-hour shift and my feet felt great.", sentiment: "positive", source: "r/RunningShoeGeeks", upvotes: 342 },
+          { text: "The React foam is incredible for standing. I'm a nurse and these saved my back.", sentiment: "positive", source: "r/Sneakers", upvotes: 218 },
+          { text: "Runs narrow. If you have wide feet, go half size up or look at Brooks.", sentiment: "negative", source: "r/Running", upvotes: 156 }
+        ],
+        recency: "Trending this month"
+      },
+      youtube: {
+        score: 9.1,
+        mentions: 234,
+        summary: "YouTubers praise the Pegasus 40 as the 'do-everything' daily trainer with improved forefoot cushioning over the 39.",
+        categories: {
+          comfort: 9.3,
+          weight: 8.4,
+          durability: 8.7,
+          style: 9.0,
+          traction: 8.8,
+          breathability: 8.9
+        },
+        context: ["Believe in the Run", "Doctors of Running", "Seth James DeMoor"],
+        quotes: [
+          { text: "This is THE daily trainer to beat in 2024. Nike finally nailed the forefoot transition.", sentiment: "positive", source: "Believe in the Run", isChannelAuthor: true, views: "245K views" },
+          { text: "For all-day comfort on your feet, the Pegasus 40 is hard to beat at this price point.", sentiment: "positive", source: "Doctors of Running", isChannelAuthor: true, views: "128K views" },
+          { text: "Not the best for speed work, but that's not what it's designed for.", sentiment: "neutral", source: "Seth James DeMoor", isChannelAuthor: true, views: "89K views" }
+        ],
+        recency: "12 reviews this month"
+      },
+      quora: {
+        score: 8.8,
+        mentions: 156,
+        summary: "Quora experts recommend it for healthcare workers and teachers who stand all day, noting excellent arch support.",
+        categories: {
+          comfort: 9.0,
+          weight: 8.2,
+          durability: 8.5,
+          style: 8.4,
+          traction: 8.3,
+          breathability: 8.6
+        },
+        context: ["Podiatrists", "Fitness Experts", "Nurses"],
+        quotes: [
+          { text: "As a podiatrist, I recommend the Pegasus line to patients who need all-day standing support.", sentiment: "positive", source: "Dr. Michael Chen, DPM", credential: "Podiatrist" },
+          { text: "The arch support is excellent without being intrusive. Great for flat feet.", sentiment: "positive", source: "Sarah K.", credential: "Physical Therapist" },
+          { text: "Cushioning breaks down after ~400 miles. Budget for replacement every 6 months if daily use.", sentiment: "negative", source: "Mark T.", credential: "Running Coach" }
+        ],
+        recency: "Active discussion"
+      },
+      blogs: {
+        score: 9.0,
+        mentions: 89,
+        summary: "Running blogs rate it as the best value daily trainer, with Runner's World giving it an Editor's Choice award.",
+        categories: {
+          comfort: 9.2,
+          weight: 8.3,
+          durability: 8.8,
+          style: 8.9,
+          traction: 8.7,
+          breathability: 8.8
+        },
+        context: ["Runner's World", "Gear Patrol", "Wirecutter"],
+        quotes: [
+          { text: "The Pegasus 40 continues Nike's legacy of reliable, do-it-all trainers. Editor's Choice.", sentiment: "positive", source: "Runner's World", badge: "Editor's Choice" },
+          { text: "If you need one shoe for walking, standing, and occasional runs, this is it.", sentiment: "positive", source: "Wirecutter", badge: "Top Pick" },
+          { text: "Not flashy, but incredibly dependable. The Honda Civic of running shoes.", sentiment: "positive", source: "Gear Patrol", badge: null }
+        ],
+        recency: "Updated Nov 2024"
+      }
+    }
+  };
+
   // Chat conversation state
   const [chatMessages, setChatMessages] = useState([
     {
@@ -84,7 +171,7 @@ const SearchResultsPage = ({ onNavigate }) => {
     {
       id: 4,
       type: 'ai',
-      text: 'Runners frequently mention rapid outsole wear (34%), reduced energy return over time (26%), and shoes feeling heavy (19%).',
+      text: 'Users on Reddit and product reviews often mention rapid outsole wear (34%), reduced energy return over time (26%), and shoes feeling heavy (19%).',
       feedSnapshot: 'feed-2',
       hasAction: true
     }
@@ -110,7 +197,8 @@ const SearchResultsPage = ({ onNavigate }) => {
       retailers: 6,
       overallScore: 9.2,
       scores: { reddit: 9.4, youtube: 9.1, quora: 8.8, blogs: 9.0 },
-      tag: 'Top Rated'
+      tag: 'Top Rated',
+      hasDetailedSource: true
     },
     {
       id: 2,
@@ -120,7 +208,8 @@ const SearchResultsPage = ({ onNavigate }) => {
       retailers: 5,
       overallScore: 9.0,
       scores: { reddit: 9.2, youtube: 9.0, quora: 8.7, blogs: 8.9 },
-      tag: 'Best for Comfort'
+      tag: 'Best for Comfort',
+      hasDetailedSource: false
     },
     {
       id: 3,
@@ -130,7 +219,8 @@ const SearchResultsPage = ({ onNavigate }) => {
       retailers: 7,
       overallScore: 8.8,
       scores: { reddit: 8.9, youtube: 8.7, quora: 8.6, blogs: 8.8 },
-      tag: null
+      tag: null,
+      hasDetailedSource: false
     },
     {
       id: 4,
@@ -140,7 +230,8 @@ const SearchResultsPage = ({ onNavigate }) => {
       retailers: 4,
       overallScore: 8.7,
       scores: { reddit: 8.8, youtube: 8.9, quora: 8.4, blogs: 8.5 },
-      tag: null
+      tag: null,
+      hasDetailedSource: false
     },
     {
       id: 5,
@@ -150,7 +241,8 @@ const SearchResultsPage = ({ onNavigate }) => {
       retailers: 5,
       overallScore: 8.6,
       scores: { reddit: 8.5, youtube: 8.8, quora: 8.4, blogs: 8.6 },
-      tag: 'Editor\'s Pick'
+      tag: 'Editor\'s Pick',
+      hasDetailedSource: false
     },
     {
       id: 6,
@@ -160,7 +252,8 @@ const SearchResultsPage = ({ onNavigate }) => {
       retailers: 4,
       overallScore: 8.4,
       scores: { reddit: 8.6, youtube: 8.3, quora: 8.2, blogs: 8.4 },
-      tag: null
+      tag: null,
+      hasDetailedSource: false
     }
   ];
 
@@ -177,35 +270,206 @@ const SearchResultsPage = ({ onNavigate }) => {
     return 'bg-red-500';
   };
 
+  const getScoreBgLight = (score) => {
+    if (score >= 8.5) return 'bg-emerald-100';
+    if (score >= 7.0) return 'bg-amber-100';
+    return 'bg-red-100';
+  };
+
+  const getScoreTextColor = (score) => {
+    if (score >= 8.5) return 'text-emerald-600';
+    if (score >= 7.0) return 'text-amber-600';
+    return 'text-red-600';
+  };
+
   const togglePriority = (key) => {
     setPriorities(prev => ({
       ...prev,
-      [key]: { active: !prev[key].active }
+      [key]: { ...prev[key], active: !prev[key].active }
     }));
   };
 
-  const SourceIcon = ({ name, score }) => {
-    const icons = {
-      reddit: '●',
-      youtube: '▶',
-      quora: 'Q',
-      blogs: '✎'
-    };
-    const colors = {
-      reddit: 'text-orange-500',
-      youtube: 'text-red-500',
-      quora: 'text-red-700',
-      blogs: 'text-blue-500'
-    };
+  const sourceIcons = {
+    reddit: { icon: '●', color: 'text-orange-500', bg: 'bg-orange-500', label: 'Reddit' },
+    youtube: { icon: '▶', color: 'text-red-500', bg: 'bg-red-500', label: 'YouTube' },
+    quora: { icon: 'Q', color: 'text-red-700', bg: 'bg-red-700', label: 'Quora' },
+    blogs: { icon: '✎', color: 'text-blue-500', bg: 'bg-blue-500', label: 'Blogs' }
+  };
+
+  const SourceIcon = ({ name, score, productId, hasDetail }) => {
+    const source = sourceIcons[name];
     return (
-      <div className="flex items-center gap-0.5">
-        <span className={`text-xs ${colors[name]}`}>{icons[name]}</span>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          if (hasDetail) {
+            setActiveSourceDetail({ productId, source: name });
+          }
+        }}
+        className={`flex items-center gap-0.5 ${hasDetail ? 'hover:bg-gray-100 rounded px-1 py-0.5 -mx-1 transition-colors cursor-pointer' : 'cursor-default'}`}
+      >
+        <span className={`text-xs ${source.color}`}>{source.icon}</span>
         <span className="text-xs text-gray-500">{score}</span>
+      </button>
+    );
+  };
+
+  const CategoryBar = ({ label, score }) => {
+    const percentage = (score / 10) * 100;
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-600 w-20">{label}</span>
+        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full ${getScoreColor(score)}`}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+        <span className={`text-xs font-semibold w-8 text-right ${getScoreTextColor(score)}`}>{score}</span>
       </div>
     );
   };
 
-  const PriorityPill = ({ name, label, priority }) => {
+  const QuoteCard = ({ quote, isYouTube }) => {
+    const sentimentStyles = {
+      positive: { border: 'border-l-emerald-500', bg: 'bg-emerald-50' },
+      negative: { border: 'border-l-red-400', bg: 'bg-red-50' },
+      neutral: { border: 'border-l-gray-400', bg: 'bg-gray-50' }
+    };
+    const style = sentimentStyles[quote.sentiment];
+
+    return (
+      <div className={`${style.bg} border-l-4 ${style.border} p-3 rounded-r-lg`}>
+        <p className="text-sm text-gray-800 leading-relaxed">"{quote.text}"</p>
+        <div className="mt-2 flex items-center justify-between flex-wrap gap-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-500">{quote.source}</span>
+            {isYouTube && quote.isChannelAuthor && (
+              <span className="inline-flex items-center gap-0.5 bg-red-100 text-red-700 px-1.5 py-0.5 rounded text-xs font-medium">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                </svg>
+                Creator
+              </span>
+            )}
+          </div>
+          <span className="text-xs text-gray-400">
+            {quote.upvotes && `↑ ${quote.upvotes}`}
+            {quote.views && quote.views}
+            {quote.credential && `• ${quote.credential}`}
+            {quote.badge && (
+              <span className="ml-1 bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-xs">
+                {quote.badge}
+              </span>
+            )}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  const SourceDetailModal = () => {
+    if (!activeSourceDetail) return null;
+
+    const { productId, source } = activeSourceDetail;
+    const detail = sourceDetails[productId]?.[source];
+    const sourceInfo = sourceIcons[source];
+
+    if (!detail) return null;
+
+    const isYouTube = source === 'youtube';
+
+    return (
+      <div
+        className="fixed inset-0 bg-black/50 z-50 flex items-end max-w-md mx-auto"
+        onClick={() => setActiveSourceDetail(null)}
+      >
+        <div
+          className="bg-white w-full rounded-t-3xl max-h-[85vh] overflow-hidden flex flex-col"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex justify-center pt-3 pb-2">
+            <div className="w-10 h-1 bg-gray-300 rounded-full" />
+          </div>
+
+          <div className="overflow-y-auto flex-1 px-5 pb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 ${sourceInfo.bg} rounded-full flex items-center justify-center`}>
+                  <span className="text-white text-lg">{sourceInfo.icon}</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">{sourceInfo.label}</h3>
+                  <p className="text-xs text-gray-500">{detail.mentions} mentions • {detail.recency}</p>
+                </div>
+              </div>
+              <div className={`${getScoreBgLight(detail.score)} px-3 py-1.5 rounded-full`}>
+                <span className={`text-lg font-bold ${getScoreTextColor(detail.score)}`}>{detail.score}</span>
+              </div>
+            </div>
+
+            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-indigo-600">✨</span>
+                <span className="text-xs font-semibold text-indigo-700 uppercase tracking-wide">AI Summary</span>
+              </div>
+              <p className="text-sm text-gray-700 leading-relaxed">{detail.summary}</p>
+            </div>
+
+            <div className="mb-5">
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">Category Scores from {sourceInfo.label}</h4>
+              <div className="space-y-2.5">
+                <CategoryBar label="Comfort" score={detail.categories.comfort} />
+                <CategoryBar label="Weight" score={detail.categories.weight} />
+                <CategoryBar label="Durability" score={detail.categories.durability} />
+                <CategoryBar label="Style" score={detail.categories.style} />
+                <CategoryBar label="Traction" score={detail.categories.traction} />
+                <CategoryBar label="Breathability" score={detail.categories.breathability} />
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">Where people are talking</h4>
+              <div className="flex flex-wrap gap-2">
+                {detail.context.map((ctx, idx) => (
+                  <span
+                    key={idx}
+                    className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs"
+                  >
+                    {ctx}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">What people are saying</h4>
+              <div className="space-y-3">
+                {detail.quotes.map((quote, idx) => (
+                  <QuoteCard key={idx} quote={quote} isYouTube={isYouTube} />
+                ))}
+              </div>
+            </div>
+
+            <button className="w-full mt-5 py-3 text-indigo-600 font-medium text-sm border border-indigo-200 rounded-xl hover:bg-indigo-50 transition-colors">
+              View all {detail.mentions} mentions →
+            </button>
+          </div>
+
+          <div className="px-5 pb-5 pt-2 border-t border-gray-100">
+            <button
+              onClick={() => setActiveSourceDetail(null)}
+              className="w-full bg-gray-900 text-white py-3.5 rounded-full font-semibold"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const PriorityPill = ({ name, priority }) => {
     return (
       <button
         onClick={() => togglePriority(name)}
@@ -215,7 +479,7 @@ const SearchResultsPage = ({ onNavigate }) => {
             : 'bg-white text-gray-600 border-gray-200'
         }`}
       >
-        {label}
+        {priority.label}
       </button>
     );
   };
@@ -436,21 +700,20 @@ const SearchResultsPage = ({ onNavigate }) => {
 
       {/* Header */}
       <div className="bg-white px-4 py-3 border-b border-gray-100 flex items-center justify-between sticky top-0 z-20">
-        <button className="text-gray-400 text-lg">←</button>
         <span className="font-bold text-lg text-indigo-600">ShopAI</span>
         <button className="text-gray-600">🔔</button>
       </div>
 
-      {/* Priority Pills Row */}
+      {/* Priority Pills Row - Updated order */}
       <div className="bg-white px-4 py-3 border-b border-gray-100 sticky top-12 z-10">
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          <PriorityPill name="comfort" label="Comfort" priority={priorities.comfort} />
-          <PriorityPill name="cushioning" label="Cushioning" priority={priorities.cushioning} />
-          <PriorityPill name="score" label="Score 8+" priority={priorities.score} />
-          <PriorityPill name="durability" label="Durability" priority={priorities.durability} />
-          <PriorityPill name="stability" label="Stability" priority={priorities.stability} />
-          <PriorityPill name="breathability" label="Breathability" priority={priorities.breathability} />
-          <PriorityPill name="weight" label="Lightweight" priority={priorities.weight} />
+          <PriorityPill name="score" priority={priorities.score} />
+          <PriorityPill name="comfort" priority={priorities.comfort} />
+          <PriorityPill name="weight" priority={priorities.weight} />
+          <PriorityPill name="durability" priority={priorities.durability} />
+          <PriorityPill name="style" priority={priorities.style} />
+          <PriorityPill name="traction" priority={priorities.traction} />
+          <PriorityPill name="breathability" priority={priorities.breathability} />
         </div>
       </div>
 
@@ -536,10 +799,10 @@ const SearchResultsPage = ({ onNavigate }) => {
                   {product.retailers} retailers
                 </div>
                 <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between">
-                  <SourceIcon name="reddit" score={product.scores.reddit} />
-                  <SourceIcon name="youtube" score={product.scores.youtube} />
-                  <SourceIcon name="quora" score={product.scores.quora} />
-                  <SourceIcon name="blogs" score={product.scores.blogs} />
+                  <SourceIcon name="reddit" score={product.scores.reddit} productId={product.id} hasDetail={product.hasDetailedSource} />
+                  <SourceIcon name="youtube" score={product.scores.youtube} productId={product.id} hasDetail={product.hasDetailedSource} />
+                  <SourceIcon name="quora" score={product.scores.quora} productId={product.id} hasDetail={product.hasDetailedSource} />
+                  <SourceIcon name="blogs" score={product.scores.blogs} productId={product.id} hasDetail={product.hasDetailedSource} />
                 </div>
               </div>
             </div>
@@ -549,7 +812,7 @@ const SearchResultsPage = ({ onNavigate }) => {
 
       {/* Chat Window - Fixed at Bottom above Nav */}
       <div className={`fixed bottom-16 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 shadow-xl transition-all duration-300 ease-in-out ${
-        chatExpanded ? 'h-90' : 'h-14'
+        chatExpanded ? 'h-80' : 'h-14'
       }`}>
 
         {/* Collapsed State */}
@@ -563,7 +826,7 @@ const SearchResultsPage = ({ onNavigate }) => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-gray-500">
-                Tap to refine your search...
+                Tap to tweak your search...
               </p>
             </div>
             <span className="text-gray-400 text-xs flex-shrink-0">▲</span>
@@ -632,10 +895,7 @@ const SearchResultsPage = ({ onNavigate }) => {
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 flex justify-around items-center max-w-md mx-auto">
-        <button
-          onClick={() => onNavigate && onNavigate('home')}
-          className="flex flex-col items-center gap-1 text-gray-400"
-        >
+        <button className="flex flex-col items-center gap-1 text-gray-400">
           <span className="text-xl">🏠</span>
           <span className="text-xs">Home</span>
         </button>
@@ -712,7 +972,7 @@ const SearchResultsPage = ({ onNavigate }) => {
               onClick={() => setShowSourceModal(false)}
               className="w-full mt-6 bg-indigo-600 text-white py-3 rounded-full font-semibold"
             >
-              Apply
+              Apply Filters
             </button>
           </div>
         </div>
@@ -834,6 +1094,9 @@ const SearchResultsPage = ({ onNavigate }) => {
           </div>
         </div>
       )}
+
+      {/* Source Detail Modal */}
+      <SourceDetailModal />
     </div>
   );
 };
