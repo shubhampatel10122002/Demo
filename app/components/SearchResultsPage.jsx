@@ -24,7 +24,7 @@ const SearchResultsPage = ({ onNavigate }) => {
     comfort: { active: true, label: 'Comfort' },
     weight: { active: true, label: 'Weight' },
     durability: { active: false, label: 'Durability' },
-    style: { active: false, label: 'Style' },
+    style: { active: false, label: 'Poluparity' },
     traction: { active: false, label: 'Grip' },
     breathability: { active: false, label: 'Breathability' }
   });
@@ -422,8 +422,8 @@ const SearchResultsPage = ({ onNavigate }) => {
                 <CategoryBar label="Comfort" score={detail.categories.comfort} />
                 <CategoryBar label="Weight" score={detail.categories.weight} />
                 <CategoryBar label="Durability" score={detail.categories.durability} />
-                <CategoryBar label="Style" score={detail.categories.style} />
-                <CategoryBar label="Traction" score={detail.categories.traction} />
+                <CategoryBar label="Popularity" score={detail.categories.style} />
+                <CategoryBar label="Grip" score={detail.categories.traction} />
                 <CategoryBar label="Breathability" score={detail.categories.breathability} />
               </div>
             </div>
